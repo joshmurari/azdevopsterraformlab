@@ -17,6 +17,10 @@ provider "azurerm" {
   features {}
 }
 
+variable "imagebuild" {
+  description = "Latest Image Build Number"
+}
+
 resource "azurerm_resource_group" "tf_test_rg" {
   name     = "tfmainrg"
   location = "eastus"
@@ -33,7 +37,7 @@ resource "azurerm_container_group" "tfcg_test" {
 
   container {
     name   = "weatherapi"
-    image  = "joshmurari/weatherapi"
+    image  = "joshmurari/weatherapi:${var.imagebuild}"
     cpu    = "1"
     memory = "1"
 
