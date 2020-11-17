@@ -5,6 +5,12 @@ terraform {
       version = ">= 2.26"
     }
   }
+  backend "azurerm" {
+    resource_group_name  = "tf_rg_blobstore"
+    storage_account_name = "tfdevopslabstorage1"
+    container_name       = "tfstate"
+    key                  = "terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
@@ -20,17 +26,17 @@ resource "azurerm_container_group" "tfcg_test" {
   name                = "weatherapi"
   location            = azurerm_resource_group.tf_test_rg.location
   resource_group_name = azurerm_resource_group.tf_test_rg.name
-  
-  ip_address_type     = "public"
-  dns_name_label      = "joshmurariweatherapp"
-  os_type             = "Linux"
-  
+
+  ip_address_type = "public"
+  dns_name_label  = "joshmurariweatherapp"
+  os_type         = "Linux"
+
   container {
     name   = "weatherapi"
     image  = "joshmurari/weatherapi"
     cpu    = "1"
     memory = "1"
-    
+
     ports {
       port     = 80
       protocol = "TCP"
