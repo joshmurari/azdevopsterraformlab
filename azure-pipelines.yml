@@ -29,26 +29,21 @@ stages:
         tags: |
           $(tag)
 - stage: Provision
-  displayName: Terraforming on azure
+  displayName: ARM Template Deployment
   dependsOn: Build
   jobs:
   - job: Provision
     displayName: Provisioning Container instance
     pool:
       vmImage: 'ubuntu-latest'
-    variables:
-      - group: terraform_env_vars
     steps:
-    - script: |
-        set -e
-
-        terraform init -input=false
-        terraform apply -input=false -auto-approve
-      name: 'RunTerraform'
-      displayName: "Run Terraform"
-      env:
-        ARM_CLIENT_ID: $(ARM_CLIENT_ID)
-        ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
-        ARM_TENANT_ID: $(ARM_TENANT_ID)
-        ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
-        TF_VAR_imagebuild: $(tag)
+    - task: AzureResourceManagerTemplateDeployment@3
+      inputs:
+        deploymentScope: 'Subscription'
+        azureResourceManagerConnection: 'ARM Connection'
+        subscriptionId: '863894b0-b7e4-435a-8231-f817e50f3741'
+        location: 'East US'
+        templateLocation: 'URL of the file'
+        csmFileLink: 'https://raw.githubusercontent.com/joshmurari/azdevopsterraformlab/main/azuredeploy.json'
+        overrideParameters: '-buildNumber $(tag)'
+        deploymentMode: 'Incremental'
