@@ -1,0 +1,82 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "buildNumber": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "rgName": "tfmainrg2",
+        "rgLocation": "eastus"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "location": "[variables('rgLocation')]",
+            "name": "[variables('rgName')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "containerDeplyment",
+            "resourceGroup": "[variables('rgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', variables('rgName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "name": "weatherapi",
+                            "type": "Microsoft.ContainerInstance/containerGroups",
+                            "apiVersion": "2019-12-01",
+                            "location": "[variables('rgLocation')]",
+                            "properties": {
+                                "containers": [
+                                    {
+                                        "name": "weatherapi",
+                                        "properties": {
+                                            "image": "[concat('joshmurari/weatherapi:',parameters('buildNumber'))]",
+                                            "ports": [
+                                                {
+                                                    "port": 80
+                                                }
+                                            ],
+                                            "resources": {
+                                                "requests": {
+                                                    "cpu": 1,
+                                                    "memoryInGB": 1
+                                                }
+                                            }
+                                        }
+                                    }
+                                ],
+                                "osType": "Linux",
+                                "restartPolicy": "Always",
+                                "ipAddress": {
+                                    "type": "Public",
+                                    "ports": [
+                                        {
+                                            "protocol": "Tcp",
+                                            "port": 80
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "outputs": {}
+            }
+        }
+    ],
+    "outputs": {}
+}
